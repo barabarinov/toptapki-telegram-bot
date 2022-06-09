@@ -26,12 +26,6 @@ def reply_keyboard_cancel(CANCEL):
     return InlineKeyboardMarkup(reply_keyboard)
 
 
-# cancel message with a pic
-# def reply_keyboard_cancel_pic(CANCELPIC):
-#     reply_keyboard = [[InlineKeyboardButton('Скасувати', callback_data=CANCELPIC)]]
-#     return InlineKeyboardMarkup(reply_keyboard)
-
-
 # amount buttons
 def reply_keyboard_amount(CANCEL):
     reply_keyboard_amounts = [

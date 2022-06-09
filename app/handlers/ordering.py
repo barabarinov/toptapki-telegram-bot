@@ -149,34 +149,12 @@ def cancel_conversation(update: Update, context: CallbackContext):
     logger.info('CALLBACK_QUERY >>> ')
     query.answer()
 
-    # context.bot.edit_message_text(
-    #     chat_id=query.message.chat_id,
-    #     message_id=query.message.message_id,
-    #     text=good_luck,
-    # )
     context.bot.send_message(
         chat_id=query.message.chat_id,
             text=good_luck,
     )
 
     return ConversationHandler.END
-
-
-# def cancel_conversation_with_image(update: Update, context: CallbackContext):
-#     query = update.callback_query
-#     query.answer()
-#     logger.info('CALLBACK_QUERY IMAGE >>> ')
-#     # context.bot.edit_message_text(
-#     #     chat_id=query.message.chat_id,
-#     #     message_id=query.message.message_id,
-#     #     text=good_luck,
-#     # )
-#     context.bot.edit_message_caption(
-#         chat_id=query.message.chat_id,
-#         caption=good_luck,
-#     )
-#
-#     return ConversationHandler.END
 
 
 ordering_conversation_handler = ConversationHandler(
@@ -191,6 +169,5 @@ ordering_conversation_handler = ConversationHandler(
     },
     fallbacks=[
         CallbackQueryHandler(cancel_conversation, pattern=CANCEL),
-        # CallbackQueryHandler(cancel_conversation_with_image, pattern=CANCELPIC),
     ],
 )
