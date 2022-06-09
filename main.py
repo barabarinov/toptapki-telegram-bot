@@ -36,7 +36,7 @@ if __name__ == '__main__':
                             listen="0.0.0.0",
                             port=PORT,
                             url_path=TOKEN,
-                            webhook_url=f'https://skeemans-telegram-bot.herokuapp.com/{TOKEN}'
+                            webhook_url=f'https://toptapki-telegtam-bot.herokuapp.com/{TOKEN}'
         )
     else:
         updater.start_polling()
