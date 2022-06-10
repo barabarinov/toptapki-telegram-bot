@@ -1,6 +1,7 @@
 bin/
 lib/
 toptapki-538f84e5c85f.json
+.env
 __pycache__/
 .idea/
 pyvenv.cfg
