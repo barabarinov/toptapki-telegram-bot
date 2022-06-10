@@ -6,8 +6,8 @@ from app.buttons import reply_keyboard_order
 
 
 def start(update: Update, context: CallbackContext):
-    update.message.reply_animation(
-        animation=open('pics/toptapki_1.gif', 'rb'),
+    update.message.reply_video(
+        video=open('pics/toptapki_4.mp4', 'rb'),
         caption=hello_text,
         reply_markup=reply_keyboard_order(),
         parse_mode=ParseMode.MARKDOWN,
