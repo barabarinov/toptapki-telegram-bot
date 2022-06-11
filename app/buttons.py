@@ -42,7 +42,6 @@ def reply_keyboard_amount(CANCEL):
 
 # color buttons
 def reply_keyboard_color(CANCEL):
-    logger.info(f'CANCELPIC >>>{CANCEL}')
     reply_keyboard_colors = [
         [InlineKeyboardButton('Помаранчевий', callback_data=ORANGE),
          InlineKeyboardButton('Оливковий', callback_data=OLIVE)],

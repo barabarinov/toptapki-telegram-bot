@@ -123,7 +123,9 @@ def get_size(update: Update, context: CallbackContext):
         chat_id=query.message.chat_id,
         message_id=query.message.message_id,
         text=address,
-        reply_markup=reply_keyboard_cancel(CANCEL)
+        disable_web_page_preview=True,
+        reply_markup=reply_keyboard_cancel(CANCEL),
+        parse_mode=ParseMode.MARKDOWN,
     )
 
     return NewOrder.POSTAL_ADDRESS
