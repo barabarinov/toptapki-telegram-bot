@@ -45,10 +45,10 @@ def reply_keyboard_color(CANCEL):
     logger.info(f'CANCELPIC >>>{CANCEL}')
     reply_keyboard_colors = [
         [InlineKeyboardButton('Помаранчевий', callback_data=ORANGE),
-         InlineKeyboardButton('Оливковий', callback_data=OLIVE),
-         InlineKeyboardButton('Жовтий', callback_data=YELLOW)],
-        [InlineKeyboardButton('Рожевий', callback_data=PINK),
-         InlineKeyboardButton('Сірий', callback_data=GRAY),
+         InlineKeyboardButton('Оливковий', callback_data=OLIVE)],
+        [InlineKeyboardButton('Жовтий', callback_data=YELLOW),
+         InlineKeyboardButton('Рожевий', callback_data=PINK)],
+        [InlineKeyboardButton('Сірий', callback_data=GRAY),
          InlineKeyboardButton('Чорний', callback_data=BLACK)],
         [InlineKeyboardButton('Cиній', callback_data=BLUE),
          InlineKeyboardButton('Кремовий', callback_data=BEIGE)],
