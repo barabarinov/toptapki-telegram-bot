@@ -14,6 +14,7 @@ from app.texts import (
     number,
     amount,
     color,
+    colors,
     size,
     address,
     order_accepted,
@@ -86,20 +87,45 @@ def get_amount(update: Update, context: CallbackContext):
     query = update.callback_query
     context.user_data['amount'] = query.data
     logger.info(f'AMOUNT >>> {context.user_data["amount"]}')
-    query.answer()
 
-    context.bot.send_photo(
-        chat_id=query.message.chat_id,
-        photo=open('pics/colors.png', 'rb'),
-        caption=color,
-        reply_markup=reply_keyboard_color(CANCEL),
+    if context.user_data['amount'] != '1':
+        item_amount = 0
+        while item_amount != int(context.user_data['amount']):
+            context.bot.send_photo(
+                chat_id=query.message.chat_id,
+                photo=open('pics/colors.png', 'rb')
+            )
+
+            query.answer()   # ЦЕЙ АНСВЕР ТРЕБА РОБИТИ КОЛИ ТИ ХОЧЕШЬ ЩОБ БОТ ВІДПОВІВ НА ПОПЕРЕДНЄ ПОВІДОМЛЕННЯ ТЕКСТОМ НИЖЧЕ?
+            context.bot.send_message(
+                chat_id=query.message.chat_id,
+                text=colors.format(item_amount+1),
+                reply_markup=reply_keyboard_color(CANCEL),
+            )
+
+            context.user_data['color'] = query.data  # ТУТ ЧОМУСЬ ЛЕЖИТЬ AMOUNT ХОЧА КНОПКИ ВЖЕ ІНШІ
+            logger.info(f'WHAT IN QUERY.DATA >>> {query.data}')
+
+            item_amount += 1
+            logger.info(f'ITEM AMOUNT >>> {item_amount}')
+            return NewOrder.AMOUNT
+        return NewOrder.COLOR
+
+    else:
+        query.answer()
+        context.bot.send_photo(
+            chat_id=query.message.chat_id,
+            photo=open('pics/colors.png', 'rb'),
+            caption=color,
+            reply_markup=reply_keyboard_color(CANCEL),
         )
 
-    return NewOrder.COLOR
+        return NewOrder.COLOR
 
 
 def get_color(update: Update, context: CallbackContext):
     query = update.callback_query
+    logger.info(f'QUERY DATA AFTER >>> {query.data}')
     context.user_data['color'] = query.data
     logger.info(f'COLOR >>> {context.user_data["color"]}')
     query.answer()
@@ -148,7 +174,7 @@ def get_postal_address(update: Update, context: CallbackContext):
 
 def cancel_conversation(update: Update, context: CallbackContext):
     query = update.callback_query
-    logger.info('CALLBACK_QUERY >>> ')
+    logger.info(f'CALLBACK_QUERY >>> {query}')
     query.answer()
 
     context.bot.send_message(
