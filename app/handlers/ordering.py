@@ -8,7 +8,7 @@ from telegram.ext import (
     CallbackQueryHandler,
     CallbackContext,
 )
-# from app.handlers.get_few_colors import get_few_colors
+
 from app.gsheet import send_information_to_google_sheets
 from app.texts import (
     name,
@@ -22,6 +22,7 @@ from app.texts import (
     order_accepted,
     good_luck,
 )
+
 from app.buttons import (
     reply_keyboard_cancel,
     reply_keyboard_amount,
@@ -81,8 +82,8 @@ def get_phone_number(update: Update, context: CallbackContext):
         reply_markup=reply_keyboard_amount(CANCEL),
     )
     context.user_data['item_index'] = 0
-    context.user_data['color'] = ''
-    context.user_data['size'] = ''
+    context.user_data['color'] = []
+    context.user_data['size'] = []
 
     return NewOrder.AMOUNT
 
@@ -90,7 +91,6 @@ def get_phone_number(update: Update, context: CallbackContext):
 def get_amount(update: Update, context: CallbackContext):
     query = update.callback_query
     context.user_data['amount'] = query.data
-    # query.answer(text='HELLO', show_alert=True)
     logger.info(f'AMOUNT >>> {context.user_data["amount"]}')
     item_index = context.user_data['item_index']
 
@@ -101,28 +101,14 @@ def get_amount(update: Update, context: CallbackContext):
         reply_markup=reply_keyboard_color(CANCEL),
     )
 
-    logger.info(f'WHAT IN QUERY.DATA >>> {query.data}')
-    logger.info(f'ITEM AMOUNT >>> {context.user_data["item_index"]}')
-
     return NewOrder.COLOR
-
-    # else:
-    #     query.answer()
-    #     context.bot.send_photo(
-    #         chat_id=query.message.chat_id,
-    #         photo=open('pics/colors.png', 'rb'),
-    #         caption=color,
-    #         reply_markup=reply_keyboard_color(CANCEL),
-    #     )
-    #
-    #     return NewOrder.COLOR
 
 
 def get_color(update: Update, context: CallbackContext):
     query = update.callback_query
-    context.user_data['color'] += ', ' + query.data
-    # context.user_data['item_index'] += 1
+    context.user_data['color'].append(query.data)
     item_index = context.user_data['item_index']
+
     logger.info(f'COLOR >>> {context.user_data["color"]}')
     query.answer()
 
@@ -137,7 +123,7 @@ def get_color(update: Update, context: CallbackContext):
 
 def get_size(update: Update, context: CallbackContext):
     query = update.callback_query
-    context.user_data['size'] += ', ' + query.data
+    context.user_data['size'].append(query.data)
     context.user_data['item_index'] += 1
     logger.info(f'SIZE >>> {context.user_data["size"]}')
 
@@ -167,8 +153,8 @@ def get_size(update: Update, context: CallbackContext):
 
 def get_postal_address(update: Update, context: CallbackContext):
     context.user_data['postal_address'] = update.message.text
-    logger.info(f'Context.user_data >>> {context.user_data} <<<')
     logger.info(f'POSTAL ADDRESS >>> {context.user_data["postal_address"]}')
+    logger.info(f'Context.user_data >>> {context.user_data} <<<')
 
     send_information_to_google_sheets(update, context)
 
@@ -187,7 +173,7 @@ def cancel_conversation(update: Update, context: CallbackContext):
 
     context.bot.send_message(
         chat_id=query.message.chat_id,
-            text=good_luck,
+        text=good_luck,
     )
 
     return ConversationHandler.END

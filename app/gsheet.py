@@ -22,8 +22,8 @@ def send_information_to_google_sheets(update: Update, context: CallbackContext):
             [context.user_data['user_name'],
              context.user_data['phone_number'],
              context.user_data['amount'],
-             context.user_data['color'].lstrip(', '),
-             context.user_data['size'].lstrip(', '),
+             ', '.join(context.user_data['color']),
+             ', '.join(context.user_data['size']),
              context.user_data['postal_address'],
              ]
         ], row=2)
