@@ -79,54 +79,53 @@ def get_phone_number(update: Update, context: CallbackContext):
         text=amount,
         reply_markup=reply_keyboard_amount(CANCEL),
     )
+    context.user_data['item_amount'] = 0
 
     return NewOrder.AMOUNT
 
 
 def get_amount(update: Update, context: CallbackContext):
+    logger.info("I'm in get amount!")
     query = update.callback_query
     context.user_data['amount'] = query.data
+    # query.answer(text='HELLO', show_alert=True)
     logger.info(f'AMOUNT >>> {context.user_data["amount"]}')
+    item_amount = context.user_data['item_amount']
 
-    if context.user_data['amount'] != '1':
-        item_amount = 0
-        while item_amount != int(context.user_data['amount']):
-            context.bot.send_photo(
-                chat_id=query.message.chat_id,
-                photo=open('pics/colors.png', 'rb')
-            )
-
-            query.answer()   # ЦЕЙ АНСВЕР ТРЕБА РОБИТИ КОЛИ ТИ ХОЧЕШЬ ЩОБ БОТ ВІДПОВІВ НА ПОПЕРЕДНЄ ПОВІДОМЛЕННЯ ТЕКСТОМ НИЖЧЕ?
-            context.bot.send_message(
-                chat_id=query.message.chat_id,
-                text=colors.format(item_amount+1),
-                reply_markup=reply_keyboard_color(CANCEL),
-            )
-
-            context.user_data['color'] = query.data  # ТУТ ЧОМУСЬ ЛЕЖИТЬ AMOUNT ХОЧА КНОПКИ ВЖЕ ІНШІ
-            logger.info(f'WHAT IN QUERY.DATA >>> {query.data}')
-
-            item_amount += 1
-            logger.info(f'ITEM AMOUNT >>> {item_amount}')
-            return NewOrder.AMOUNT
-        return NewOrder.COLOR
-
-    else:
-        query.answer()
+    if context.user_data['item_amount'] < int(context.user_data['amount']):
         context.bot.send_photo(
             chat_id=query.message.chat_id,
+            caption=colors.format(item_amount + 1),
             photo=open('pics/colors.png', 'rb'),
-            caption=color,
             reply_markup=reply_keyboard_color(CANCEL),
         )
+        #
+        # context.user_data['color'] = query.data
+        logger.info(f'WHAT IN QUERY.DATA >>> {query.data}')
+
+        logger.info(f'ITEM AMOUNT >>> {context.user_data["item_amount"]}')
+        # return NewOrder.AMOUNT
 
         return NewOrder.COLOR
+
+    # else:
+    #     query.answer()
+    #     context.bot.send_photo(
+    #         chat_id=query.message.chat_id,
+    #         photo=open('pics/colors.png', 'rb'),
+    #         caption=color,
+    #         reply_markup=reply_keyboard_color(CANCEL),
+    #     )
+    #
+    #     return NewOrder.COLOR
 
 
 def get_color(update: Update, context: CallbackContext):
     query = update.callback_query
     logger.info(f'QUERY DATA AFTER >>> {query.data}')
-    context.user_data['color'] = query.data
+    context.user_data['color'] = ''
+    context.user_data['color'] += query.data
+
     logger.info(f'COLOR >>> {context.user_data["color"]}')
     query.answer()
 
@@ -142,19 +141,25 @@ def get_color(update: Update, context: CallbackContext):
 def get_size(update: Update, context: CallbackContext):
     query = update.callback_query
     context.user_data['size'] = query.data
+    query.answer(text='GET_SIZE')
     logger.info(f'SIZE >>> {context.user_data["size"]}')
-    query.answer()
+    context.user_data['item_amount'] += 1
+    logger.info(f'ITEM AMOUNT +1 >>> {context.user_data["item_amount"]}')
+    if context.user_data['item_amount'] < int(context.user_data['amount']):
+        return NewOrder.AMOUNT
+    else:
+        query.answer()
 
-    context.bot.edit_message_text(
-        chat_id=query.message.chat_id,
-        message_id=query.message.message_id,
-        text=address,
-        disable_web_page_preview=True,
-        reply_markup=reply_keyboard_cancel(CANCEL),
-        parse_mode=ParseMode.MARKDOWN,
-    )
+        context.bot.edit_message_text(
+            chat_id=query.message.chat_id,
+            message_id=query.message.message_id,
+            text=address,
+            disable_web_page_preview=True,
+            reply_markup=reply_keyboard_cancel(CANCEL),
+            parse_mode=ParseMode.MARKDOWN,
+        )
 
-    return NewOrder.POSTAL_ADDRESS
+        return NewOrder.POSTAL_ADDRESS
 
 
 def get_postal_address(update: Update, context: CallbackContext):
