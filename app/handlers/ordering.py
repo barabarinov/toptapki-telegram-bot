@@ -8,6 +8,7 @@ from telegram.ext import (
     CallbackQueryHandler,
     CallbackContext,
 )
+# from app.handlers.get_few_colors import get_few_colors
 from app.gsheet import send_information_to_google_sheets
 from app.texts import (
     name,
@@ -16,6 +17,7 @@ from app.texts import (
     color,
     colors,
     size,
+    sizes,
     address,
     order_accepted,
     good_luck,
@@ -31,7 +33,6 @@ logger = logging.getLogger(__name__)
 
 ORDER = 'order'
 CANCEL = 'cancel'
-CANCELPIC = 'cancelpic'
 NUMBERS = '1|2|3|4|5|6'
 COLORS = 'Жовтий|Помаранчевий|Чорний|Оливковий|Рожевий|Кремовий|Сірий|Синій'
 SIZES = '35|36-37|38-39|40-41|42-43|44-45'
@@ -79,34 +80,31 @@ def get_phone_number(update: Update, context: CallbackContext):
         text=amount,
         reply_markup=reply_keyboard_amount(CANCEL),
     )
-    context.user_data['item_amount'] = 0
+    context.user_data['item_index'] = 0
+    context.user_data['color'] = ''
+    context.user_data['size'] = ''
 
     return NewOrder.AMOUNT
 
 
 def get_amount(update: Update, context: CallbackContext):
-    logger.info("I'm in get amount!")
     query = update.callback_query
     context.user_data['amount'] = query.data
     # query.answer(text='HELLO', show_alert=True)
     logger.info(f'AMOUNT >>> {context.user_data["amount"]}')
-    item_amount = context.user_data['item_amount']
+    item_index = context.user_data['item_index']
 
-    if context.user_data['item_amount'] < int(context.user_data['amount']):
-        context.bot.send_photo(
-            chat_id=query.message.chat_id,
-            caption=colors.format(item_amount + 1),
-            photo=open('pics/colors.png', 'rb'),
-            reply_markup=reply_keyboard_color(CANCEL),
-        )
-        #
-        # context.user_data['color'] = query.data
-        logger.info(f'WHAT IN QUERY.DATA >>> {query.data}')
+    context.bot.send_photo(
+        chat_id=query.message.chat_id,
+        caption=colors.format(item_index + 1) if int(context.user_data['amount']) != 1 else color,
+        photo=open('pics/colors.png', 'rb'),
+        reply_markup=reply_keyboard_color(CANCEL),
+    )
 
-        logger.info(f'ITEM AMOUNT >>> {context.user_data["item_amount"]}')
-        # return NewOrder.AMOUNT
+    logger.info(f'WHAT IN QUERY.DATA >>> {query.data}')
+    logger.info(f'ITEM AMOUNT >>> {context.user_data["item_index"]}')
 
-        return NewOrder.COLOR
+    return NewOrder.COLOR
 
     # else:
     #     query.answer()
@@ -122,16 +120,15 @@ def get_amount(update: Update, context: CallbackContext):
 
 def get_color(update: Update, context: CallbackContext):
     query = update.callback_query
-    logger.info(f'QUERY DATA AFTER >>> {query.data}')
-    context.user_data['color'] = ''
-    context.user_data['color'] += query.data
-
+    context.user_data['color'] += ', ' + query.data
+    # context.user_data['item_index'] += 1
+    item_index = context.user_data['item_index']
     logger.info(f'COLOR >>> {context.user_data["color"]}')
     query.answer()
 
     context.bot.send_message(
         chat_id=query.message.chat_id,
-        text=size,
+        text=sizes.format(item_index + 1) if int(context.user_data['amount']) != 1 else size,
         reply_markup=reply_keyboard_size(CANCEL),
         )
 
@@ -140,16 +137,22 @@ def get_color(update: Update, context: CallbackContext):
 
 def get_size(update: Update, context: CallbackContext):
     query = update.callback_query
-    context.user_data['size'] = query.data
-    query.answer(text='GET_SIZE')
+    context.user_data['size'] += ', ' + query.data
+    context.user_data['item_index'] += 1
     logger.info(f'SIZE >>> {context.user_data["size"]}')
-    context.user_data['item_amount'] += 1
-    logger.info(f'ITEM AMOUNT +1 >>> {context.user_data["item_amount"]}')
-    if context.user_data['item_amount'] < int(context.user_data['amount']):
-        return NewOrder.AMOUNT
-    else:
-        query.answer()
 
+    query.answer()
+
+    if context.user_data['item_index'] < int(context.user_data['amount']):
+        context.bot.send_message(
+            chat_id=query.message.chat_id,
+            text=colors.format(context.user_data['item_index'] + 1),
+            reply_markup=reply_keyboard_color(CANCEL),
+        )
+
+        return NewOrder.COLOR
+
+    else:
         context.bot.edit_message_text(
             chat_id=query.message.chat_id,
             message_id=query.message.message_id,
