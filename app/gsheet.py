@@ -16,6 +16,7 @@ sh = gc.open("toptapki")
 wks = sh.worksheet('Замовлення')
 
 
+# Fill in the spreadsheet
 def send_information_to_google_sheets(update: Update, context: CallbackContext):
     wks.insert_rows(
         values=[

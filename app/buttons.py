@@ -14,7 +14,7 @@ GRAY = 'Сірий'
 BLUE = 'Синій'
 
 
-# first button
+# start order button
 def reply_keyboard_order():
     reply_markup = [[InlineKeyboardButton('✏️ Оформити замовлення', callback_data=ORDER)]]
     return InlineKeyboardMarkup(reply_markup)

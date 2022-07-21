@@ -125,7 +125,9 @@ def get_size(update: Update, context: CallbackContext):
     query = update.callback_query
     context.user_data['size'].append(query.data)
     context.user_data['item_index'] += 1
+
     logger.info(f'SIZE >>> {context.user_data["size"]}')
+    logger.info(f'ITEM INDEX >>> {context.user_data["item_index"]}')
 
     query.answer()
 
