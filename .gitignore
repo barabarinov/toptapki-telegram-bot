@@ -5,4 +5,3 @@ __pycache__/
 .idea/
 pyvenv.cfg
 .DS_Store
-.env
