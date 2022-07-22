@@ -16,7 +16,6 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 
-
 if __name__ == '__main__':
     load_dotenv()
 
@@ -33,10 +32,10 @@ if __name__ == '__main__':
 
     if IS_HEROKU:
         updater.start_webhook(
-                            listen="0.0.0.0",
-                            port=PORT,
-                            url_path=TOKEN,
-                            webhook_url=f'https://toptapki-telegtam-bot.herokuapp.com/{TOKEN}'
+            listen="0.0.0.0",
+            port=PORT,
+            url_path=TOKEN,
+            webhook_url=f'https://toptapki-telegtam-bot.herokuapp.com/{TOKEN}'
         )
     else:
         updater.start_polling()
