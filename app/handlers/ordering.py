@@ -32,11 +32,11 @@ from app.buttons import (
 
 logger = logging.getLogger(__name__)
 
-ORDER = 'order'
-CANCEL = 'cancel'
-NUMBERS = '1|2|3|4|5|6'
-COLORS = 'Жовтий|Помаранчевий|Чорний|Оливковий|Рожевий|Кремовий|Сірий|Синій'
-SIZES = '35|36-37|38-39|40-41|42-43|44-45'
+ORDER = "order"
+CANCEL = "cancel"
+NUMBERS = "1|2|3|4|5|6"
+COLORS = "Жовтий|Помаранчевий|Чорний|Оливковий|Рожевий|Кремовий|Сірий|Синій"
+SIZES = "35|36-37|38-39|40-41|42-43|44-45"
 
 
 class NewOrder(IntEnum):
@@ -62,8 +62,7 @@ def new_order(update: Update, context: CallbackContext):
 
 
 def get_name(update: Update, context: CallbackContext):
-    context.user_data['user_name'] = update.message.text
-    logger.info(f'USER NAME >>> {context.user_data["user_name"]}')
+    context.user_data["user_name"] = update.message.text
 
     update.message.reply_text(
         text=number,
@@ -74,30 +73,30 @@ def get_name(update: Update, context: CallbackContext):
 
 
 def get_phone_number(update: Update, context: CallbackContext):
-    context.user_data['phone_number'] = update.message.text
-    logger.info(f'PHONE NUMBER >>> {context.user_data["phone_number"]}')
+    context.user_data["phone_number"] = update.message.text
 
     update.message.reply_text(
         text=amount,
         reply_markup=reply_keyboard_amount(CANCEL),
     )
-    context.user_data['item_index'] = 0
-    context.user_data['color'] = []
-    context.user_data['size'] = []
+    context.user_data["item_index"] = 0
+    context.user_data["color"] = []
+    context.user_data["size"] = []
 
     return NewOrder.AMOUNT
 
 
 def get_amount(update: Update, context: CallbackContext):
     query = update.callback_query
-    context.user_data['amount'] = query.data
-    logger.info(f'AMOUNT >>> {context.user_data["amount"]}')
-    item_index = context.user_data['item_index']
+    context.user_data["amount"] = query.data
+    item_index = context.user_data["item_index"]
 
     context.bot.send_photo(
         chat_id=query.message.chat_id,
-        caption=colors.format(item_index + 1) if int(context.user_data['amount']) != 1 else color,
-        photo=open('pics/colors.png', 'rb'),
+        caption=colors.format(item_index + 1)
+        if int(context.user_data["amount"]) != 1
+        else color,
+        photo=open("pics/colors.png", "rb"),
         reply_markup=reply_keyboard_color(CANCEL),
     )
 
@@ -106,35 +105,31 @@ def get_amount(update: Update, context: CallbackContext):
 
 def get_color(update: Update, context: CallbackContext):
     query = update.callback_query
-    context.user_data['color'].append(query.data)
-    item_index = context.user_data['item_index']
-
-    logger.info(f'COLOR >>> {context.user_data["color"]}')
+    context.user_data["color"].append(query.data)
+    item_index = context.user_data["item_index"]
     query.answer()
 
     context.bot.send_message(
         chat_id=query.message.chat_id,
-        text=sizes.format(item_index + 1) if int(context.user_data['amount']) != 1 else size,
+        text=sizes.format(item_index + 1)
+        if int(context.user_data["amount"]) != 1
+        else size,
         reply_markup=reply_keyboard_size(CANCEL),
-        )
+    )
 
     return NewOrder.SIZE
 
 
 def get_size(update: Update, context: CallbackContext):
     query = update.callback_query
-    context.user_data['size'].append(query.data)
-    context.user_data['item_index'] += 1
-
-    logger.info(f'SIZE >>> {context.user_data["size"]}')
-    logger.info(f'ITEM INDEX >>> {context.user_data["item_index"]}')
-
+    context.user_data["size"].append(query.data)
+    context.user_data["item_index"] += 1
     query.answer()
 
-    if context.user_data['item_index'] < int(context.user_data['amount']):
+    if context.user_data["item_index"] < int(context.user_data["amount"]):
         context.bot.send_message(
             chat_id=query.message.chat_id,
-            text=colors.format(context.user_data['item_index'] + 1),
+            text=colors.format(context.user_data["item_index"] + 1),
             reply_markup=reply_keyboard_color(CANCEL),
         )
 
@@ -154,9 +149,7 @@ def get_size(update: Update, context: CallbackContext):
 
 
 def get_postal_address(update: Update, context: CallbackContext):
-    context.user_data['postal_address'] = update.message.text
-    logger.info(f'POSTAL ADDRESS >>> {context.user_data["postal_address"]}')
-    logger.info(f'Context.user_data >>> {context.user_data} <<<')
+    context.user_data["postal_address"] = update.message.text
 
     send_information_to_google_sheets(update, context)
 
@@ -170,7 +163,6 @@ def get_postal_address(update: Update, context: CallbackContext):
 
 def cancel_conversation(update: Update, context: CallbackContext):
     query = update.callback_query
-    logger.info(f'CALLBACK_QUERY >>> {query}')
     query.answer()
 
     context.bot.send_message(
@@ -185,11 +177,15 @@ ordering_conversation_handler = ConversationHandler(
     entry_points=[CallbackQueryHandler(new_order, pattern=ORDER)],
     states={
         NewOrder.NAME: [MessageHandler(Filters.text & ~Filters.command, get_name)],
-        NewOrder.NUMBER: [MessageHandler(Filters.text & ~Filters.command, get_phone_number)],
+        NewOrder.NUMBER: [
+            MessageHandler(Filters.text & ~Filters.command, get_phone_number)
+        ],
         NewOrder.AMOUNT: [CallbackQueryHandler(get_amount, pattern=NUMBERS)],
         NewOrder.COLOR: [CallbackQueryHandler(get_color, pattern=COLORS)],
         NewOrder.SIZE: [CallbackQueryHandler(get_size, pattern=SIZES)],
-        NewOrder.POSTAL_ADDRESS: [MessageHandler(Filters.text & ~Filters.command, get_postal_address)],
+        NewOrder.POSTAL_ADDRESS: [
+            MessageHandler(Filters.text & ~Filters.command, get_postal_address)
+        ],
     },
     fallbacks=[
         CallbackQueryHandler(cancel_conversation, pattern=CANCEL),
